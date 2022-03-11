@@ -1,0 +1,2 @@
+# graduation_project_manage_web
+view of graduation_project_manage app
