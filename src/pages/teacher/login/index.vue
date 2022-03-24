@@ -25,16 +25,15 @@ export default {
         if (valid) {
           const payload = this.ruleForm
           request('post', 'login', payload).then((res) => {
-            if (res.code === 200) {
-              this.$message({
-                message: res.message,
-                type: 'success'
-              })
+            this.$message({
+              message: res.message,
+              type: 'success'
+            })
+            if (res.data && res.data.type && res.data.type === 'student') {
+              this.$router.push('/student/thesis')
+            } else {
+              this.$router.push('/teacher/thesis')
             }
-            // this.$message({
-            //   message: res.message,
-            //   type: 'error'
-            // })
           })
         } else {
           console.log('error submit!!')

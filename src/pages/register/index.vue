@@ -9,15 +9,8 @@ export default {
   },
   created () {
     request('get', 'facutly/list', {}).then((res) => {
-      if (res.code !== 200) {
-        this.$message({
-          message: res.message,
-          type: 'error'
-        })
-        return
-      }
       this.facutlyOption =
-        res && res.data
+        res.data && res.data.length
           ? this.mapDeptData(res.data).filter((item) => item.level === 1)
           : []
     })
@@ -88,14 +81,7 @@ export default {
         facutlyId: value || ''
       }
       request('get', 'facutly/classList', payload).then((res) => {
-        if (res.code !== 200) {
-          this.$message({
-            message: res.message,
-            type: 'error'
-          })
-          return
-        }
-        this.classOption = res && res.data ? res.data : []
+        this.classOption = res.data && res.data.length ? res.data : []
       })
     },
     submitForm (formName) {
@@ -104,18 +90,11 @@ export default {
           const payload = { ...this.ruleForm }
           delete payload.passwordAgain
           request('post', 'register', payload).then((res) => {
-            if (res.code === 200) {
-              this.$message({
-                message: res.message,
-                type: 'success'
-              })
-              this.$refs[formName].resetFields()
-              return
-            }
             this.$message({
               message: res.message,
-              type: 'error'
+              type: 'success'
             })
+            this.$refs[formName].resetFields()
           })
         } else {
           console.log('error submit!!')
