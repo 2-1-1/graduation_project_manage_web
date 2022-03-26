@@ -9,7 +9,7 @@ export default {
   render () {
     return (
       <div>
-      {typeof this.text === 'string' && this.text.length > this.length ? (
+      {typeof this.text === 'string' && this.text.strictLength > this.length ? (
         <el-tooltip effect="dark" content={this.text}>
         <span>{this.text.substr(0, this.length) + '...'}</span>
         </el-tooltip>
