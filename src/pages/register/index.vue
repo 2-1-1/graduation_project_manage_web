@@ -63,12 +63,11 @@ export default {
   methods: {
     mapDeptData (arr) {
       const newArr = arr.map((item) => {
-        item.value = item.facutlyId
-        item.label = item.facutlyName
-        item.leaf = item.isLeaf
-        if (!item.isLeaf) {
+        item.value = item.facutly_id
+        item.label = item.facutly_name
+        if (!item.leaf) {
           item.children = this.mapDeptData(
-            arr.filter((child) => child.parentId === item.facutlyId)
+            arr.filter((child) => child.parent_id === item.facutly_id)
           )
         }
         return item
@@ -147,9 +146,9 @@ export default {
         >
           <el-option
             v-for="item in classOption"
-            :key="item.classId"
-            :label="item.classId"
-            :value="item.classId"
+            :key="item.class_id"
+            :label="item.class_id"
+            :value="item.class_id"
           >
           </el-option>
         </el-select>
