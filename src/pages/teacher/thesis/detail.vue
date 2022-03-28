@@ -13,7 +13,6 @@ export default {
       detail: {
         number: '-'
       },
-      filterVisible: false,
       statusOption: [
         {
           label: '待审批',
@@ -85,13 +84,6 @@ export default {
           })
         }
       })
-    },
-    handlefilterClose (done) {
-      this.$confirm('确认关闭？')
-        .then((_) => {
-          done()
-        })
-        .catch((_) => {})
     },
     handleClose (done) {
       this.$confirm('确认关闭？')
@@ -212,7 +204,7 @@ export default {
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item class="center">
+        <el-form-item>
           <el-button type="primary" @click="submitForm('passForm')"
             >确定</el-button
           >
@@ -240,7 +232,7 @@ export default {
           >
           </el-input>
         </el-form-item>
-        <el-form-item class="center">
+        <el-form-item>
           <el-button type="primary" @click="submitForm('rejectForm')"
             >确定</el-button
           >
@@ -279,11 +271,6 @@ export default {
 
 <style lang="stylus" scoped>
 @import '~styles/mixins.styl';
-
-/deep/ .el-drawer__body {
-  padding: 0.2rem;
-  width: 90%;
-}
 
 .container {
   display: flex;

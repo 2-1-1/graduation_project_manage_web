@@ -8,8 +8,8 @@ export default {
     Header
   },
   created () {
-    request('get', 'facutly/list', {}).then((res) => {
-      this.facutlyOption =
+    request('get', 'faculty/list', {}).then((res) => {
+      this.facultyOption =
         res.data && res.data.length
           ? this.mapDeptData(res.data).filter((item) => item.level === 1)
           : []
@@ -46,7 +46,7 @@ export default {
           value: 'student'
         }
       ],
-      facutlyOption: [],
+      facultyOption: [],
       classOption: [],
       ruleForm: {
         phone: '',
@@ -63,11 +63,11 @@ export default {
   methods: {
     mapDeptData (arr) {
       const newArr = arr.map((item) => {
-        item.value = item.facutly_id
-        item.label = item.facutly_name
+        item.value = item.faculty_id
+        item.label = item.faculty_name
         if (!item.leaf) {
           item.children = this.mapDeptData(
-            arr.filter((child) => child.parent_id === item.facutly_id)
+            arr.filter((child) => child.parent_id === item.faculty_id)
           )
         }
         return item
@@ -77,9 +77,9 @@ export default {
     handleFacultyChange (value) {
       this.$refs['class'].resetField()
       const payload = {
-        facutlyId: value || ''
+        facultyId: value || ''
       }
-      request('get', 'facutly/classList', payload).then((res) => {
+      request('get', 'faculty/classList', payload).then((res) => {
         this.classOption = res.data && res.data.length ? res.data : []
       })
     },
@@ -131,7 +131,7 @@ export default {
         <el-cascader
           style="width: 100%"
           v-model="ruleForm.faculty"
-          :options="facutlyOption"
+          :options="facultyOption"
           @change="handleFacultyChange"
           :show-all-levels="false"
           :props="{ checkStrictly: true, emitPath: false }"

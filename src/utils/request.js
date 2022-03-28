@@ -32,7 +32,7 @@ const errorHandler = (error) => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
-  if (!response.data || !response.data.code || response.data.code !== 200) {
+  if (!response.data || ((!response.data.code || response.data.code !== 200) && !(response.data instanceof Blob))) {
     if (response.data && response.data.message) {
       Message.error(response.data.message)
       throw new Error(response.data.message)
@@ -44,12 +44,12 @@ request.interceptors.response.use((response) => {
   return response.data
 }, errorHandler)
 
-const requestSimple = (method, url, data, headers) => {
+const requestSimple = (method, url, data, config) => {
   let newData = { data: data }
   if (method === 'get') {
     newData = { params: data }
   }
-  return request({ method: method, url: url, ...newData })
+  return request({ method: method, url: url, ...newData, ...config })
 }
 
 export default requestSimple

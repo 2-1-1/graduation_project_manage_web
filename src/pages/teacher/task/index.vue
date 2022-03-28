@@ -1,10 +1,9 @@
 <script>
 import request from '@/utils/request'
-import transform from '@/utils/transform'
 import moment from 'moment'
 
 export default {
-  name: 'TeacherThesis',
+  name: 'TeacherTask',
   data () {
     const checkNumber = (_rule, value, callback) => {
       if (value) {
@@ -30,7 +29,9 @@ export default {
     }
     const checkEndTime = (_rule, value, callback) => {
       if (value && this.ruleForm.startTime) {
-        if (moment(value).valueOf() < moment(this.ruleForm.startTime).valueOf()) {
+        if (
+          moment(value).valueOf() < moment(this.ruleForm.startTime).valueOf()
+        ) {
           callback(new Error('开始时间不能大于结束时间'))
         } else {
           callback()
@@ -41,37 +42,30 @@ export default {
     }
     return {
       list: [],
+      releaseVisible: false,
+      fileList: [],
       filterVisible: false,
-      statusOption: [
-        {
-          label: '待审批',
-          value: 'pending'
-        },
-        {
-          label: '已拒绝',
-          value: 'reject'
-        },
-        {
-          label: '已通过',
-          value: 'pass'
-        }
-      ],
       ruleForm: {},
       rules: {
         number: [{ validator: checkNumber, trigger: 'blur' }],
-        startTime: [
-          { validator: checkStartTime }
-        ],
-        endTime: [
-          { validator: checkEndTime }
-        ]
+        startTime: [{ validator: checkStartTime }],
+        endTime: [{ validator: checkEndTime }]
+      },
+      releaseForm: {},
+      releaseRules: {
+        title: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
+        file: [{ required: true, message: '请上传任务材料', trigger: 'blur' }]
       }
     }
   },
   watch: {
     ruleForm: function () {
-      if (this.ruleForm.startTime && this.ruleForm.endTime &&
-      moment(this.ruleForm.endTime).valueOf() < moment(this.ruleForm.startTime).valueOf()) {
+      if (
+        this.ruleForm.startTime &&
+        this.ruleForm.endTime &&
+        moment(this.ruleForm.endTime).valueOf() <
+          moment(this.ruleForm.startTime).valueOf()
+      ) {
         this.$refs.ruleForm.validateField('startTime')
         this.$refs.ruleForm.validateField('endTime')
       } else {
@@ -81,17 +75,30 @@ export default {
     }
   },
   created () {
-    this.getThesisList()
+    this.getTaskList()
   },
   methods: {
-    getThesisList (payload = {}) {
-      request('post', 'thesis/list', payload).then((res) => {
+    getTaskList (payload = {}) {
+      request('post', 'task/list', payload).then((res) => {
         this.filterVisible = false
         if (res.data && res.data.length) {
           this.list = res.data
         } else {
           this.list = []
         }
+      })
+    },
+    releaseTask (payload = {}) {
+      request('post', 'task/release', payload).then((res) => {
+        this.releaseVisible = false
+        this.$message({
+          message: res.message,
+          type: 'success'
+        })
+        this.releaseForm = {}
+        this.fileList = []
+        this.ruleForm = {}
+        this.getTaskList({})
       })
     },
     handlefilterClose (done) {
@@ -101,7 +108,7 @@ export default {
         })
         .catch((_) => {})
     },
-    handleClose (done) {
+    closeReleaseDialog (done) {
       this.$confirm('确认关闭？')
         .then((_) => {
           done()
@@ -112,7 +119,18 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           const payload = this.ruleForm
-          this.getThesisList(payload)
+          this.getTaskList(payload)
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    submitReleaseForm (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const payload = this.releaseForm
+          this.releaseTask(payload)
         } else {
           console.log('error submit!!')
           return false
@@ -122,11 +140,42 @@ export default {
     resetForm (formName) {
       this.$refs[formName].resetFields()
     },
-    handleDownload (e, url) {
+    handleDownload (e, name, url) {
       e.stopPropagation()
-      window.open(url)
+      const downloadFetch = async () => {
+        const payload = {
+          url: url
+        }
+        let blob = await request('post', 'download', payload, {
+          responseType: 'blob'
+        })
+        let URL = window.URL || window.webkitURL
+        let href = URL.createObjectURL(blob)
+        let a = document.createElement('a')
+        a.href = href
+        a.download = name
+        a.click()
+        a.remove()
+      }
+      downloadFetch()
     },
-    transform: transform
+    handleUpload (file, fileList) {
+      console.log('file, fileList', file, fileList)
+      if (file && file.status === 'success') {
+        this.releaseForm.file = {
+          uid: file.uid,
+          name: file.name,
+          url: file.response.data
+        }
+        this.fileList = [
+          {
+            uid: file.uid,
+            name: file.name,
+            url: file.response.data
+          }
+        ]
+      }
+    }
   }
 }
 </script>
@@ -134,7 +183,12 @@ export default {
 <template>
   <div>
     <div class="header">
-      <span class="title">论文列表</span>
+      <span class="title">任务列表</span>
+
+      <el-button size="small" type="primary" @click="releaseVisible = true"
+        >发布任务</el-button
+      >
+
       <el-button
         @click="filterVisible = true"
         type="text"
@@ -149,19 +203,19 @@ export default {
         class="item border-bottom"
         v-for="item of list"
         :key="item.id"
-        :to="'thesis/detail?id=' + item.id"
+        :to="'task/detail?id=' + item.id"
       >
         <!-- <img class="item-img" :src="item.imgUrl" /> -->
         <div class="item-info">
           <p class="item-title">{{ item.title }}</p>
-          <p class="item-desc">{{ item.student_name }}</p>
-          <p class="item-desc">{{ transform(item.status, statusOption) }}</p>
+          <p class="item-desc">{{ item.number }}</p>
+          <p class="item-desc">{{ item.status + "%" }}</p>
           <p class="item-desc">{{ item.created_time }}</p>
           <button
             class="item-button"
-            @click="(e) => handleDownload(e, item.url)"
+            @click="(e) => handleDownload(e, item.name, item.url)"
           >
-            下载论文
+            下载任务说明材料
           </button>
           <button class="item-button">查看详情</button>
         </div>
@@ -181,28 +235,16 @@ export default {
         ref="ruleForm"
         class="formContainer"
       >
-        <el-form-item label="审批状态" prop="status">
-          <el-select
-            style="width: 100%"
-            v-model="ruleForm.status"
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in statusOption"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
+        <el-form-item label="任务名称" prop="title">
+          <el-input v-model="ruleForm.title"></el-input>
         </el-form-item>
         <el-form-item label="编号" prop="number">
           <el-input v-model.number="ruleForm.number"></el-input>
         </el-form-item>
-        <el-form-item label="提交开始时间" prop="startTime">
+        <el-form-item label="发布开始时间" prop="startTime">
           <el-calendar v-model="ruleForm.startTime"> </el-calendar>
         </el-form-item>
-        <el-form-item label="提交结束时间" prop="endTime">
+        <el-form-item label="发布结束时间" prop="endTime">
           <el-calendar v-model="ruleForm.endTime"> </el-calendar>
         </el-form-item>
         <el-form-item>
@@ -213,6 +255,36 @@ export default {
         </el-form-item>
       </el-form>
     </el-drawer>
+
+    <el-dialog
+      title="发布任务"
+      :visible.sync="releaseVisible"
+      width="90%"
+      :before-close="closeReleaseDialog"
+    >
+      <el-form :model="releaseForm" :rules="releaseRules" ref="releaseForm">
+        <el-form-item label="任务名称" prop="title">
+          <el-input placeholder="请输入内容" v-model="releaseForm.title" />
+        </el-form-item>
+        <el-form-item label="任务说明材料" prop="file">
+          <el-upload
+            style="display: inline-block; width: 100%"
+            action="/api/task/upload"
+            list-type="text"
+            :file-list="fileList"
+            :on-change="handleUpload"
+            v-model="releaseForm.file"
+          >
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitReleaseForm('releaseForm')"
+            >确定</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 

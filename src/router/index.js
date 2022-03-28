@@ -5,6 +5,8 @@ import Register from '@/pages/register'
 import TeacherLogin from '@/pages/teacher/login'
 import TeacherThesis from '@/pages/teacher/thesis'
 import TeacherThesisDetail from '@/pages/teacher/thesis/detail.vue'
+import TeacherTask from '@/pages/teacher/task'
+import TeacherTaskDetail from '@/pages/teacher/task/detail.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -29,6 +31,14 @@ export default new Router({
       path: '/teacher/thesis/detail',
       name: 'TeacherThesisDetail',
       component: TeacherThesisDetail
+    }, {
+      path: '/teacher/task',
+      name: 'TeacherTask',
+      component: TeacherTask
+    }, {
+      path: '/teacher/task/detail',
+      name: 'TeacherTaskDetail',
+      component: TeacherTaskDetail
     }
   ]
 })
