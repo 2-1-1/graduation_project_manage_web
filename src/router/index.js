@@ -7,6 +7,8 @@ import TeacherThesis from '@/pages/teacher/thesis'
 import TeacherThesisDetail from '@/pages/teacher/thesis/detail.vue'
 import TeacherTask from '@/pages/teacher/task'
 import TeacherTaskDetail from '@/pages/teacher/task/detail.vue'
+import TeacherWeekly from '@/pages/teacher/weekly'
+import TeacherWeeklyDetail from '@/pages/teacher/weekly/detail.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -39,6 +41,14 @@ export default new Router({
       path: '/teacher/task/detail',
       name: 'TeacherTaskDetail',
       component: TeacherTaskDetail
+    }, {
+      path: '/teacher/weekly',
+      name: 'TeacherWeekly',
+      component: TeacherWeekly
+    }, {
+      path: '/teacher/weekly/detail',
+      name: 'TeacherWeeklyDetail',
+      component: TeacherWeeklyDetail
     }
   ]
 })

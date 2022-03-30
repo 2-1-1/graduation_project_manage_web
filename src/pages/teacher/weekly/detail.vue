@@ -4,7 +4,7 @@ import transform from '@/utils/transform'
 import TextEllipsis from '@/pages/component/TextEllipsis'
 
 export default {
-  name: 'TeacherTaskDetail',
+  name: 'TeacherWeeklyDetail',
   components: {
     TextEllipsis
   },
@@ -40,7 +40,7 @@ export default {
     }
   },
   created () {
-    this.getTaskDetail({ id: this.$route.query.id })
+    this.getWeeklyDetail({ id: this.$route.query.id })
     this.getStudentList({})
   },
   methods: {
@@ -53,8 +53,8 @@ export default {
         }
       })
     },
-    getTaskDetail (payload = {}) {
-      request('post', 'task/detail', payload).then((res) => {
+    getWeeklyDetail (payload = {}) {
+      request('post', 'weekly/detail', payload).then((res) => {
         this.filterVisible = false
         if (res.data && res.data.length) {
           this.list = res.data
@@ -63,10 +63,10 @@ export default {
         }
       })
     },
-    approvalTask (payload = {}) {
-      request('post', 'task/approvalTask', payload).then((res) => {
+    approvalWeekly (payload = {}) {
+      request('post', 'weekly/approvalWeekly', payload).then((res) => {
         if (res) {
-          this.getTaskDetail({ id: this.$route.query.id })
+          this.getWeeklyDetail({ id: this.$route.query.id })
           this.rejectVisible = false
           this.$message({
             message: res.message,
@@ -95,7 +95,7 @@ export default {
           const obj = {}
           obj.id = Number(this.$route.query.id)
           const payload = { ...this.ruleForm, ...obj }
-          this.getTaskDetail(payload)
+          this.getWeeklyDetail(payload)
         } else {
           console.log('error submit!!')
           return false
@@ -106,11 +106,11 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           const obj = {}
-          obj.task_id = Number(this.$route.query.id)
+          obj.weekly_id = Number(this.$route.query.id)
           obj.id = Number(this.itemId)
           const payload = { ...this.rejectForm, ...obj }
           payload.event = 'reject'
-          this.approvalTask(payload)
+          this.approvalWeekly(payload)
         } else {
           console.log('error submit!!')
           return false
@@ -119,18 +119,18 @@ export default {
     },
     handleAgree (id) {
       const payload = {
-        task_id: Number(this.$route.query.id),
+        weekly_id: Number(this.$route.query.id),
         id: Number(id),
         event: 'pass'
       }
-      this.approvalTask(payload)
+      this.approvalWeekly(payload)
     },
     resetForm (formName) {
       this.$refs[formName].resetFields()
     },
     handleDownload (e, url) {
       e.stopPropagation()
-      window.open(`//localhost/graduation_project_manage/storage/app/${url}`)
+      window.open(`//localhost/graduation_project_manage/public/storage/${url}`)
     },
     transform: transform
   }
@@ -140,7 +140,7 @@ export default {
 <template>
   <div class="container">
     <div class="header">
-      <span class="title">任务详情</span>
+      <span class="title">周记详情</span>
 
       <el-button
         @click="filterVisible = true"
@@ -160,7 +160,7 @@ export default {
             class="item-button"
             @click="(e) => handleDownload(e, item.url)"
           >
-            下载任务提交材料
+            下载周记提交材料
           </button>
           <button class="item-button" v-if="item.status === 'pending'" @click="(e) => handleAgree(item.id)">
             审批通过
