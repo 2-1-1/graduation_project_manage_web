@@ -26,7 +26,7 @@ export default {
     <input type="text" class="inputhead" />
     <div class="right" v-on:click="this.formSelect">
       <span v-if="routerLink.includes('teacher')">教师端</span>
-      <span v-else-if="routerLink.includes('student')">教师端</span>
+      <span v-else-if="routerLink.includes('student')">学生端</span>
       <span v-else>登录</span>
     </div>
     <el-dialog

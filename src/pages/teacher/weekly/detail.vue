@@ -130,7 +130,7 @@ export default {
     },
     handleDownload (e, url) {
       e.stopPropagation()
-      window.open(`//localhost/graduation_project_manage/public/storage/${url}`)
+      window.open(`//localhost/graduation_project_manage/storage/app/${url}`)
     },
     transform: transform
   }
