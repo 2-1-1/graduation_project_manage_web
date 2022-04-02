@@ -12,6 +12,7 @@ import TeacherWeeklyDetail from '@/pages/teacher/weekly/detail.vue'
 import StudentLogin from '@/pages/student/login'
 import StudentThesis from '@/pages/student/thesis'
 import StudentTask from '@/pages/student/task'
+import StudentWeekly from '@/pages/student/weekly'
 Vue.use(Router)
 
 export default new Router({
@@ -64,6 +65,10 @@ export default new Router({
       path: '/student/task',
       name: 'StudentTask',
       component: StudentTask
+    }, {
+      path: '/student/weekly',
+      name: 'StudentWeekly',
+      component: StudentWeekly
     }
   ]
 })
